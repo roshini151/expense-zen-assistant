@@ -8,6 +8,7 @@ interface ExpenseData {
   category: string;
   date: string;
   title?: string;
+  user_id?: string;
 }
 
 export const useExpenses = () => {
@@ -36,9 +37,21 @@ export const useExpenses = () => {
   const addExpenseMutation = useMutation({
     mutationFn: async (expenseData: ExpenseData) => {
       console.log('Adding expense:', expenseData);
+      
+      // Get current user
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        throw new Error('User not authenticated');
+      }
+
+      const expenseWithUser = {
+        ...expenseData,
+        user_id: user.id
+      };
+
       const { data, error } = await supabase
         .from('expenses')
-        .insert([expenseData])
+        .insert([expenseWithUser])
         .select()
         .single();
 
