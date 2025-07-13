@@ -22,16 +22,16 @@ interface ExpenseListProps {
 
 export const ExpenseList: React.FC<ExpenseListProps> = ({ expenses }) => {
   const [filter, setFilter] = useState({
-    category: '',
-    month: '',
+    category: 'all',
+    month: 'all',
     search: ''
   });
 
   const categories = [...new Set(expenses?.map(e => e.category).filter(Boolean))];
   
   const filteredExpenses = expenses?.filter(expense => {
-    const matchesCategory = !filter.category || expense.category === filter.category;
-    const matchesMonth = !filter.month || format(new Date(expense.date || expense.created_at), 'yyyy-MM') === filter.month;
+    const matchesCategory = filter.category === 'all' || expense.category === filter.category;
+    const matchesMonth = filter.month === 'all' || format(new Date(expense.date || expense.created_at), 'yyyy-MM') === filter.month;
     const matchesSearch = !filter.search || 
       expense.title?.toLowerCase().includes(filter.search.toLowerCase()) ||
       expense.category?.toLowerCase().includes(filter.search.toLowerCase());
@@ -59,7 +59,7 @@ export const ExpenseList: React.FC<ExpenseListProps> = ({ expenses }) => {
               <SelectValue placeholder="Category" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All Categories</SelectItem>
+              <SelectItem value="all">All Categories</SelectItem>
               {categories.map(category => (
                 <SelectItem key={category} value={category}>{category}</SelectItem>
               ))}
@@ -70,7 +70,7 @@ export const ExpenseList: React.FC<ExpenseListProps> = ({ expenses }) => {
               <SelectValue placeholder="Month" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All Months</SelectItem>
+              <SelectItem value="all">All Months</SelectItem>
               {months.map(month => (
                 <SelectItem key={month} value={month}>
                   {format(new Date(month + '-01'), 'MMM yyyy')}
@@ -80,7 +80,7 @@ export const ExpenseList: React.FC<ExpenseListProps> = ({ expenses }) => {
           </Select>
           <Button 
             variant="outline" 
-            onClick={() => setFilter({category: '', month: '', search: ''})}
+            onClick={() => setFilter({category: 'all', month: 'all', search: ''})}
           >
             Clear
           </Button>
