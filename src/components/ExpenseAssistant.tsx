@@ -12,9 +12,10 @@ import { BudgetManager } from './BudgetManager';
 import { ExpenseExporter } from './ExpenseExporter';
 import { ThemeToggle } from './ThemeToggle';
 import UserProfile from './UserProfile';
+import ExpenseChat from './ExpenseChat';
 import { useExpenses } from '@/hooks/useExpenses';
 import { parseExpenseInput } from '@/utils/expenseParser';
-import { BarChart3, Calculator, DollarSign, FileText, Settings, Sparkles } from 'lucide-react';
+import { BarChart3, Calculator, DollarSign, FileText, Settings, Sparkles, MessageCircle } from 'lucide-react';
 
 const ExpenseAssistant = () => {
   const [input, setInput] = useState('');
@@ -108,11 +109,16 @@ const ExpenseAssistant = () => {
         {/* Main Content Tabs */}
         <Tabs defaultValue="overview" className="space-y-4 sm:space-y-6">
           <div className="overflow-x-auto">
-            <TabsList className="grid grid-cols-5 w-full min-w-[500px] h-12">
+            <TabsList className="grid grid-cols-6 w-full min-w-[600px] h-12">
               <TabsTrigger value="overview" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 text-xs sm:text-sm">
                 <Calculator className="h-4 w-4" />
                 <span className="hidden sm:inline">Overview</span>
                 <span className="sm:hidden">Home</span>
+              </TabsTrigger>
+              <TabsTrigger value="chat" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 text-xs sm:text-sm">
+                <MessageCircle className="h-4 w-4" />
+                <span className="hidden sm:inline">Chat</span>
+                <span className="sm:hidden">AI</span>
               </TabsTrigger>
               <TabsTrigger value="charts" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 text-xs sm:text-sm">
                 <BarChart3 className="h-4 w-4" />
@@ -142,6 +148,10 @@ const ExpenseAssistant = () => {
               <ExpenseSummary expenses={expenses} />
               <ExpenseList expenses={expenses} />
             </div>
+          </TabsContent>
+
+          <TabsContent value="chat">
+            <ExpenseChat expenses={expenses} />
           </TabsContent>
 
           <TabsContent value="charts">

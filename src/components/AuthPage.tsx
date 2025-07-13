@@ -8,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useAuth } from '@/hooks/useAuth';
 import { ThemeToggle } from './ThemeToggle';
-import { Wallet, Mail, Lock, Chrome, Loader2 } from 'lucide-react';
+import { Wallet, Mail, Lock, Loader2 } from 'lucide-react';
 
 const AuthPage = () => {
   const [email, setEmail] = useState('');
@@ -16,7 +16,7 @@ const AuthPage = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
-  const { signIn, signUp, signInWithGoogle } = useAuth();
+  const { signIn, signUp } = useAuth();
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -43,18 +43,6 @@ const AuthPage = () => {
       setError(error.message);
     } else {
       setMessage('Check your email for the confirmation link!');
-    }
-    setLoading(false);
-  };
-
-  const handleGoogleSignIn = async () => {
-    setError('');
-    setLoading(true);
-    
-    const { error } = await signInWithGoogle();
-    
-    if (error) {
-      setError(error.message);
     }
     setLoading(false);
   };
@@ -87,32 +75,6 @@ const AuthPage = () => {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            {/* Google Sign In */}
-            <Button
-              onClick={handleGoogleSignIn}
-              variant="outline"
-              className="w-full h-12 text-base font-medium border-2 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-200"
-              disabled={loading}
-            >
-              {loading ? (
-                <Loader2 className="h-5 w-5 animate-spin mr-2" />
-              ) : (
-                <Chrome className="h-5 w-5 mr-2" />
-              )}
-              Continue with Google
-            </Button>
-
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t" />
-              </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-background px-2 text-muted-foreground">
-                  Or continue with email
-                </span>
-              </div>
-            </div>
-
             {/* Email/Password Auth */}
             <Tabs defaultValue="signin" className="w-full">
               <TabsList className="grid w-full grid-cols-2 mb-4">
@@ -189,11 +151,12 @@ const AuthPage = () => {
                       <Input
                         id="signup-password"
                         type="password"
-                        placeholder="Create a password"
+                        placeholder="Create a password (min 6 characters)"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         className="pl-10 h-12"
                         required
+                        minLength={6}
                       />
                     </div>
                   </div>
