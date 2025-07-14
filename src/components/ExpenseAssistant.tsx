@@ -57,6 +57,19 @@ const ExpenseAssistant = () => {
     }
   };
 
+  const handleExpenseDeleted = () => {
+    refetch();
+  };
+
+  const handleAddExpenseClick = () => {
+    // Focus on the input field when add button is clicked
+    const inputElement = document.querySelector('input[placeholder*="Add"]') as HTMLInputElement;
+    if (inputElement) {
+      inputElement.focus();
+      inputElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50/50 via-white to-purple-50/50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-800">
       <div className="max-w-7xl mx-auto p-3 sm:p-6 space-y-4 sm:space-y-6">
@@ -146,7 +159,11 @@ const ExpenseAssistant = () => {
           <TabsContent value="overview">
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6">
               <ExpenseSummary expenses={expenses} />
-              <ExpenseList expenses={expenses} />
+              <ExpenseList 
+                expenses={expenses} 
+                onExpenseDeleted={handleExpenseDeleted}
+                onAddExpense={handleAddExpenseClick}
+              />
             </div>
           </TabsContent>
 
@@ -163,7 +180,11 @@ const ExpenseAssistant = () => {
           </TabsContent>
 
           <TabsContent value="expenses">
-            <ExpenseList expenses={expenses} />
+            <ExpenseList 
+              expenses={expenses} 
+              onExpenseDeleted={handleExpenseDeleted}
+              onAddExpense={handleAddExpenseClick}
+            />
           </TabsContent>
 
           <TabsContent value="export">

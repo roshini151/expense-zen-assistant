@@ -65,6 +65,10 @@ export const useExpenses = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['expenses'] });
+      toast({
+        title: "Success",
+        description: "Expense added successfully!",
+      });
     },
     onError: (error) => {
       console.error('Mutation error:', error);
@@ -76,10 +80,40 @@ export const useExpenses = () => {
     },
   });
 
+  const deleteExpenseMutation = useMutation({
+    mutationFn: async (expenseId: number) => {
+      const { error } = await supabase
+        .from('expenses')
+        .delete()
+        .eq('id', expenseId);
+
+      if (error) {
+        console.error('Error deleting expense:', error);
+        throw error;
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['expenses'] });
+      toast({
+        title: "Success",
+        description: "Expense deleted successfully!",
+      });
+    },
+    onError: (error) => {
+      console.error('Delete mutation error:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete expense. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
   return {
     expenses,
     isLoading,
     addExpense: addExpenseMutation.mutateAsync,
+    deleteExpense: deleteExpenseMutation.mutateAsync,
     refetch,
   };
 };
