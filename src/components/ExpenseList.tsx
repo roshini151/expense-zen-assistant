@@ -9,7 +9,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { format } from 'date-fns';
 import { Trash2, MoreVertical, Plus } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { supabase } from '@/integrations/supabase/client';
+import { useExpenses } from '@/hooks/useExpenses';
 
 interface Expense {
   id: number;
@@ -34,6 +34,7 @@ export const ExpenseList: React.FC<ExpenseListProps> = ({ expenses, onExpenseDel
   });
   const [deletingId, setDeletingId] = useState<number | null>(null);
   const { toast } = useToast();
+  const { deleteExpense } = useExpenses();
 
   const categories = [...new Set(expenses?.map(e => e.category).filter(Boolean))];
   
@@ -62,26 +63,8 @@ export const ExpenseList: React.FC<ExpenseListProps> = ({ expenses, onExpenseDel
   const handleDeleteExpense = async (expenseId: number) => {
     try {
       setDeletingId(expenseId);
-      const { error } = await supabase
-        .from('expenses')
-        .delete()
-        .eq('id', expenseId);
-
-      if (error) {
-        console.error('Error deleting expense:', error);
-        toast({
-          title: "Error",
-          description: "Failed to delete expense. Please try again.",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      toast({
-        title: "Success",
-        description: "Expense deleted successfully!",
-      });
-
+      await deleteExpense(expenseId);
+      
       if (onExpenseDeleted) {
         onExpenseDeleted();
       }
@@ -220,13 +203,15 @@ export const ExpenseList: React.FC<ExpenseListProps> = ({ expenses, onExpenseDel
       </Card>
 
       {/* Floating Add Button */}
-      <Button
-        onClick={onAddExpense}
-        className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-lg bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 transition-all duration-200 z-50 flex items-center justify-center"
-        size="icon"
-      >
-        <Plus className="h-6 w-6 text-white" />
-      </Button>
+      {onAddExpense && (
+        <Button
+          onClick={onAddExpense}
+          className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-lg bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 transition-all duration-200 z-50 flex items-center justify-center"
+          size="icon"
+        >
+          <Plus className="h-6 w-6 text-white" />
+        </Button>
+      )}
     </div>
   );
 };
