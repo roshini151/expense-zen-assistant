@@ -109,11 +109,68 @@ export const useExpenses = () => {
     },
   });
 
+  const resetMonthMutation = useMutation({
+    mutationFn: async () => {
+      const currentMonth = new Date().toISOString().slice(0, 7); // YYYY-MM format
+      const { error } = await supabase
+        .from('expenses')
+        .delete()
+        .gte('date', `${currentMonth}-01`)
+        .lt('date', `${currentMonth}-32`);
+
+      if (error) {
+        console.error('Error resetting month:', error);
+        throw error;
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['expenses'] });
+      toast({
+        title: "Success",
+        description: "Current month expenses cleared successfully!",
+      });
+    },
+    onError: (error) => {
+      console.error('Reset month error:', error);
+      toast({
+        title: "Error",
+        description: "Failed to reset month. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const viewHistoryQuery = useQuery({
+    queryKey: ['expenses-history'],
+    queryFn: async () => {
+      const threeMonthsAgo = new Date();
+      threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
+      
+      const { data, error } = await supabase
+        .from('expenses')
+        .select('*')
+        .lt('date', threeMonthsAgo.toISOString().slice(0, 10))
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Error fetching history:', error);
+        throw error;
+      }
+      
+      return data || [];
+    },
+    enabled: false, // Don't fetch automatically
+  });
+
   return {
     expenses,
     isLoading,
     addExpense: addExpenseMutation.mutateAsync,
     deleteExpense: deleteExpenseMutation.mutateAsync,
+    resetMonth: resetMonthMutation.mutateAsync,
+    viewHistory: viewHistoryQuery.refetch,
+    historyExpenses: viewHistoryQuery.data,
+    isLoadingHistory: viewHistoryQuery.isLoading,
     refetch,
   };
 };

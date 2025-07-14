@@ -12,16 +12,18 @@ import { BudgetManager } from './BudgetManager';
 import { ExpenseExporter } from './ExpenseExporter';
 import { ThemeToggle } from './ThemeToggle';
 import UserProfile from './UserProfile';
+import SettingsDropdown from './SettingsDropdown';
 import ExpenseChat from './ExpenseChat';
 import { useExpenses } from '@/hooks/useExpenses';
 import { parseExpenseInput } from '@/utils/expenseParser';
-import { BarChart3, Calculator, DollarSign, FileText, Settings, Sparkles, MessageCircle } from 'lucide-react';
+import { BarChart3, Calculator, DollarSign, FileText, Settings, Sparkles, MessageCircle, RotateCcw, History } from 'lucide-react';
 
 const ExpenseAssistant = () => {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [showHistory, setShowHistory] = useState(false);
   const { toast } = useToast();
-  const { expenses, addExpense, refetch } = useExpenses();
+  const { expenses, addExpense, refetch, resetMonth, viewHistory, historyExpenses, isLoadingHistory } = useExpenses();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -70,6 +72,27 @@ const ExpenseAssistant = () => {
     }
   };
 
+  const handleResetMonth = async () => {
+    try {
+      await resetMonth();
+    } catch (error) {
+      console.error('Reset month failed:', error);
+    }
+  };
+
+  const handleViewHistory = async () => {
+    try {
+      await viewHistory();
+      setShowHistory(true);
+      toast({
+        title: "History Loaded",
+        description: "Past expenses have been loaded successfully!",
+      });
+    } catch (error) {
+      console.error('View history failed:', error);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50/50 via-white to-purple-50/50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-800">
       <div className="max-w-7xl mx-auto p-3 sm:p-6 space-y-4 sm:space-y-6">
@@ -85,6 +108,7 @@ const ExpenseAssistant = () => {
           </div>
           <div className="flex items-center gap-2">
             <ThemeToggle />
+            <SettingsDropdown />
             <UserProfile />
           </div>
         </div>
@@ -99,6 +123,29 @@ const ExpenseAssistant = () => {
             <p className="text-sm text-muted-foreground">
               Try: "Add ₹300 for food today" or "Show travel expenses this month"
             </p>
+            
+            {/* Control Buttons */}
+            <div className="flex flex-wrap gap-2 mt-3">
+              <Button
+                onClick={handleResetMonth}
+                variant="outline"
+                size="sm"
+                className="flex items-center gap-2"
+              >
+                <RotateCcw className="h-4 w-4" />
+                Reset for New Month
+              </Button>
+              <Button
+                onClick={handleViewHistory}
+                variant="outline"
+                size="sm"
+                className="flex items-center gap-2"
+                disabled={isLoadingHistory}
+              >
+                <History className="h-4 w-4" />
+                {isLoadingHistory ? 'Loading...' : 'View History'}
+              </Button>
+            </div>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-2">
@@ -118,6 +165,32 @@ const ExpenseAssistant = () => {
             </form>
           </CardContent>
         </Card>
+
+        {/* History Section */}
+        {showHistory && historyExpenses && historyExpenses.length > 0 && (
+          <Card className="shadow-lg border-0 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <History className="h-5 w-5" />
+                Expense History (Past 3+ Months)
+              </CardTitle>
+              <Button
+                onClick={() => setShowHistory(false)}
+                variant="outline"
+                size="sm"
+                className="w-fit"
+              >
+                Hide History
+              </Button>
+            </CardHeader>
+            <CardContent>
+              <ExpenseList
+                expenses={historyExpenses}
+                onExpenseDeleted={handleExpenseDeleted}
+              />
+            </CardContent>
+          </Card>
+        )}
 
         {/* Main Content Tabs */}
         <Tabs defaultValue="overview" className="space-y-4 sm:space-y-6">
