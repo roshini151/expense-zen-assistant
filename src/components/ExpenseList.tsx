@@ -109,12 +109,12 @@ export const ExpenseList: React.FC<ExpenseListProps> = ({ expenses, onExpenseDel
               <Input
                 placeholder="Search expenses by title or category..."
                 value={filter.search}
-                onChange={(e) => setFilter({...filter, search: e.target.value})}
+                onChange={(e) => setFilter(prev => ({...prev, search: e.target.value}))}
                 className="h-10 bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600"
               />
             </div>
             <div className="flex flex-col sm:flex-row gap-2">
-              <Select value={filter.category} onValueChange={(value) => setFilter({...filter, category: value})}>
+              <Select value={filter.category} onValueChange={(value) => setFilter(prev => ({...prev, category: value}))}>
                 <SelectTrigger className="w-full sm:w-40 h-10 bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600">
                   <SelectValue placeholder="Category" />
                 </SelectTrigger>
@@ -125,7 +125,7 @@ export const ExpenseList: React.FC<ExpenseListProps> = ({ expenses, onExpenseDel
                   ))}
                 </SelectContent>
               </Select>
-              <Select value={filter.month} onValueChange={(value) => setFilter({...filter, month: value})}>
+              <Select value={filter.month} onValueChange={(value) => setFilter(prev => ({...prev, month: value}))}>
                 <SelectTrigger className="w-full sm:w-32 h-10 bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600">
                   <SelectValue placeholder="Month" />
                 </SelectTrigger>
